@@ -78,8 +78,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 stocks = ["MON100.NS", "MASPTOP50.NS", "MAFANG.NS"]
-my_avg = pd.read_csv('ETF_Dashboard/my_avg.txt')
-my_avg = my_avg.tail(1).drop(columns=['Date'])
+df_avg = pd.read_csv('ETF_Dashboard/my_avg.txt')
+my_avg = df_avg.tail(1).drop(columns=['Date'])
 my_avg = my_avg.values.tolist()[0]
 
 avg_map = {
@@ -391,3 +391,22 @@ try:
     st.plotly_chart(fig_wg, use_container_width=True)
 except Exception:
     st.write(weekly_group_avg.tail(20))
+
+st.subheader("My Average Trend")
+
+fig = px.line(
+    df_avg,
+    x="Date",
+    markers=True,
+    y=["MON100.NS", "MASPTOP50.NS", "MAFANG.NS"]
+)
+
+fig.update_xaxes(type="category")
+
+fig.update_traces(
+    mode="lines+markers+text",
+    texttemplate="%{y:.2f}",
+    textposition="top center"
+)
+
+st.plotly_chart(fig, use_container_width=True)
