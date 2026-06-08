@@ -250,36 +250,53 @@ def highlight_minus(val):
 numeric_cols = result.select_dtypes(include=["number"]).columns.tolist()
 # format numeric columns to two decimals and then apply the negative highlight
 # Create a dark-styled version of the analysis table
-styled = (
-    result.style
-    .format({c: '{:,.2f}' for c in numeric_cols}, na_rep='')
-    .applymap(highlight_minus, subset=numeric_cols)
-    .set_table_styles([
-        {
-            'selector': 'thead th',
-            'props': [
-                ('background-color', '#0B1220'),
-                ('color', '#E6F7F0'),
-                ('font-weight', '700'),
-                ('border-bottom', '1px solid #2E3B55')
-            ]
-        },
-        {
-            'selector': 'tbody tr:nth-child(even)',
-            'props': [('background-color', '#0F1724')]
-        },
-        {
-            'selector': 'tbody tr:nth-child(odd)',
-            'props': [('background-color', '#071019')]
-        }
-    ])
-)
 try:
+    # Try building a pandas Styler (may fail on some pandas/streamlit combos)
+    styled = (
+        result.style
+        .format({c: '{:,.2f}' for c in numeric_cols}, na_rep='')
+        .applymap(highlight_minus, subset=numeric_cols)
+        .set_table_styles([
+            {
+                'selector': 'thead th',
+                'props': [
+                    ('background-color', '#0B1220'),
+                    ('color', '#E6F7F0'),
+                    ('font-weight', '700'),
+                    ('border-bottom', '1px solid #2E3B55')
+                ]
+            },
+            {
+                'selector': 'tbody tr:nth-child(even)',
+                'props': [('background-color', '#0F1724')]
+            },
+            {
+                'selector': 'tbody tr:nth-child(odd)',
+                'props': [('background-color', '#071019')]
+            }
+        ])
+    )
     # Streamlit supports rendering pandas Styler objects
     st.dataframe(styled)
 except Exception:
-    # fallback: render HTML if direct Styler doesn't work in this Streamlit version
-    st.write(styled.to_html(), unsafe_allow_html=True)
+    # Fallback: construct an HTML table manually with inline styles
+    # Format numeric columns and wrap negative values with a green background
+    df_html = result.copy()
+    for c in numeric_cols:
+        def fmt(v):
+            try:
+                if pd.isna(v):
+                    return ''
+                s = f"{v:,.2f}"
+                if float(v) < 0:
+                    return f"<span style='background-color:#22c55e;color:#ffffff;padding:2px;border-radius:4px;'>{s}</span>"
+                return s
+            except Exception:
+                return v
+        df_html[c] = df_html[c].apply(fmt)
+    # Build HTML table with no index and allow HTML in cells
+    html = df_html.to_html(index=False, escape=False)
+    st.write(html, unsafe_allow_html=True)
 
 
 # --- Stacked layout: show charts/tables vertically
