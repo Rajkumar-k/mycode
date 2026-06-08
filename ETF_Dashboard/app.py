@@ -78,7 +78,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 stocks = ["MON100.NS", "MASPTOP50.NS", "MAFANG.NS"]
-my_avg = [259, 81, 208]
+my_avg = pd.read_csv("ETF_Dashboard/my_avg.txt')
+my_avg = my_avg.tail(1).drop(columns=['Date'])
+my_avg = my_avg.values.tolist()[0]
+
+avg_map = {
+    'MON100': my_avg[0],
+    'MASPTOP50': my_avg[1],
+    'MAFANG': my_avg[2]
+}
 
 
 df = yf.download(stocks, period="60d", progress=False)
