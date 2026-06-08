@@ -158,9 +158,9 @@ weekly_group_avg = (
 
 # Optionally rename columns to indicate these are weekly averages
 weekly_group_avg = weekly_group_avg.rename(columns={
-    stocks[0]: f"{stocks[0]}_weekly_avg",
-    stocks[1]: f"{stocks[1]}_weekly_avg",
-    stocks[2]: f"{stocks[2]}_weekly_avg",
+    stocks[0]: f"{stocks[0]}",
+    stocks[1]: f"{stocks[1]}",
+    stocks[2]: f"{stocks[2]}",
 })
 
 print('\nWeekly grouped averages (last 10 rows):')
@@ -172,21 +172,21 @@ weekly_group_avg['MASPTOP50_MyAvg'] = my_avg[1]
 weekly_group_avg['MAFANG_MyAvg'] = my_avg[2]
 
 weekly_group_avg['MON100_%'] = (
-    (weekly_group_avg['MON100.NS_weekly_avg'] - weekly_group_avg['MON100_MyAvg'])
+    (weekly_group_avg['MON100.NS'] - weekly_group_avg['MON100_MyAvg'])
     / weekly_group_avg['MON100_MyAvg'] * 100
 ).round(2)
 
 weekly_group_avg['MASPTOP50_%'] = (
-    (weekly_group_avg['MASPTOP50.NS_weekly_avg'] - weekly_group_avg['MASPTOP50_MyAvg'])
+    (weekly_group_avg['MASPTOP50.NS'] - weekly_group_avg['MASPTOP50_MyAvg'])
     / weekly_group_avg['MASPTOP50_MyAvg'] * 100
 ).round(2)
 
 weekly_group_avg['MAFANG_%'] = (
-    (weekly_group_avg['MAFANG.NS_weekly_avg'] - weekly_group_avg['MAFANG_MyAvg'])
+    (weekly_group_avg['MAFANG.NS'] - weekly_group_avg['MAFANG_MyAvg'])
     / weekly_group_avg['MAFANG_MyAvg'] * 100
 ).round(2)
 
-weekly_group_avg = weekly_group_avg[[ 'YearWeek', 'MON100.NS_weekly_avg','MON100_MyAvg', 'MON100_%','MASPTOP50.NS_weekly_avg', 'MASPTOP50_MyAvg','MASPTOP50_%','MAFANG.NS_weekly_avg',   'MAFANG_MyAvg',  'MAFANG_%']]
+weekly_group_avg = weekly_group_avg[[ 'YearWeek', 'MON100.NS','MON100_MyAvg', 'MON100_%','MASPTOP50.NS', 'MASPTOP50_MyAvg','MASPTOP50_%','MAFANG.NS',   'MAFANG_MyAvg',  'MAFANG_%']]
 weekly_group_avg = weekly_group_avg.tail(10).reset_index(drop=True)  # show only last 10 weeks for brevity
 
 
@@ -276,14 +276,25 @@ try:
         header=dict(values=header_vals,
                     fill_color='#0B1220',
                     align='left',
-                    font=dict(color='#E6F7F0', size=12)),
+                    font=dict(color='#E6F7F0', size=14)),
         cells=dict(values=cell_values,
                    fill_color=cell_fill_colors,
                    align='left',
-                   font=dict(color=cell_font_colors, size=11)))
+                   font=dict(color=cell_font_colors, size=13)))
     ])
 
-    fig_table.update_layout(margin=dict(t=8, b=8, l=8, r=8), height=420)
+    # adjust height to fit rows: header + row_height * rows (capped)
+    row_count = result.shape[0]
+    header_h = 36
+    row_h = 30
+    max_h = 900
+    calc_h = header_h + row_h * row_count + 24
+    fig_table.update_layout(
+        margin=dict(t=8, b=8, l=8, r=8),
+        height=min(calc_h, max_h),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
     st.plotly_chart(fig_table, use_container_width=True)
 except Exception:
     # Fallback: simple full-width dataframe without styling
@@ -320,43 +331,53 @@ try:
 except Exception as e:
     st.write("Could not render 52-week chart:", e)
 
-st.subheader("Weekly grouped averages (10 weeks)")
+st.subheader("Weekly grouped averages")
 try:
-    # Style the weekly grouped averages table: dark header, subtle row backgrounds, 2-decimal formatting
-    weekly_style = (
-        weekly_group_avg.style
-        .format({
-            'MON100.NS_weekly_avg': '{:,.2f}',
-            'MASPTOP50.NS_weekly_avg': '{:,.2f}',
-            'MAFANG.NS_weekly_avg': '{:,.2f}',
-            'MON100_MyAvg': '{:,.2f}',
-            'MASPTOP50_MyAvg': '{:,.2f}',
-            'MAFANG_MyAvg': '{:,.2f}',
-            'MON100_%': '{:,.2f}',
-            'MASPTOP50_%': '{:,.2f}',
-            'MAFANG_%': '{:,.2f}'
-        })
-        .set_table_styles([
-            {
-                'selector': 'thead th',
-            'props': [
-                ('background-color', '#000000'),  # Black header
-                ('color', '#FFFFFF'),             # White text
-                ('font-weight', 'bold'),
-                ('text-align', 'center'),
-                
-            ]
-            },
-            {
-                'selector': 'tbody tr:nth-child(even)',
-                'props': [('background-color', '#0F1724')]
-            },
-            {
-                'selector': 'tbody tr:nth-child(odd)',
-                'props': [('background-color', '#071019')]
-            }
-        ])
+    wg = weekly_group_avg.tail(10).reset_index(drop=True)
+
+    header_vals = [f"<b>{c}</b>" for c in wg.columns.tolist()]
+    cell_values = []
+    cell_fill_colors = []
+    cell_font_colors = []
+
+    for c in wg.columns.tolist():
+        col_vals = wg[c].tolist()
+        if pd.api.types.is_numeric_dtype(wg[c]):
+            formatted = [f"{v:,.2f}" if pd.notna(v) else "" for v in col_vals]
+            colors = [('#22c55e' if (pd.notna(v) and float(v) < 0) else '#071019') for v in col_vals]
+            fcolors = [('#ffffff' if (pd.notna(v) and float(v) < 0) else '#E6F7F0') for v in col_vals]
+        else:
+            formatted = [str(v) for v in col_vals]
+            colors = ['#071019'] * len(col_vals)
+            fcolors = ['#E6F7F0'] * len(col_vals)
+
+        cell_values.append(formatted)
+        cell_fill_colors.append(colors)
+        cell_font_colors.append(fcolors)
+
+    fig_wg = go.Figure(data=[go.Table(
+        header=dict(values=header_vals,
+                    fill_color='#0B1220',
+                    align='left',
+                    font=dict(color='#E6F7F0', size=14)),
+        cells=dict(values=cell_values,
+                   fill_color=cell_fill_colors,
+                   align='left',
+                   font=dict(color=cell_font_colors, size=14)))
+    ])
+
+    # dynamic height for weekly table
+    row_count_w = wg.shape[0]
+    header_h_w = 36
+    row_h_w = 30
+    max_h_w = 900
+    calc_h_w = header_h_w + row_h_w * row_count_w + 24
+    fig_wg.update_layout(
+        margin=dict(t=8, b=8, l=8, r=8),
+        height=min(calc_h_w, max_h_w),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
     )
-    st.write(weekly_style.to_html(), unsafe_allow_html=True)
+    st.plotly_chart(fig_wg, use_container_width=True)
 except Exception:
     st.write(weekly_group_avg.tail(20))
