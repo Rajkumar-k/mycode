@@ -193,7 +193,7 @@ weekly_group_avg = weekly_group_avg.tail(10).reset_index(drop=True)  # show only
 st.title("ETF Dashboard")
 
 # Single-column layout: show key metrics across the page, then the table below
-st.header("Key Metrics (DoD)")
+st.header("Key Metrics")
 # four KPI boxes: three price metrics + latest available date
 km1, km2, km3, km4 = st.columns(4)
 
@@ -343,9 +343,11 @@ try:
     for c in wg.columns.tolist():
         col_vals = wg[c].tolist()
         if pd.api.types.is_numeric_dtype(wg[c]):
+            # format numeric values to 2 decimals (with thousands separator)
             formatted = [f"{v:,.2f}" if pd.notna(v) else "" for v in col_vals]
-            colors = [('#22c55e' if (pd.notna(v) and float(v) < 0) else '#071019') for v in col_vals]
-            fcolors = [('#ffffff' if (pd.notna(v) and float(v) < 0) else '#E6F7F0') for v in col_vals]
+            # use uniform background and font colors (no conditional coloring)
+            colors = ['#071019'] * len(col_vals)
+            fcolors = ['#E6F7F0'] * len(col_vals)
         else:
             formatted = [str(v) for v in col_vals]
             colors = ['#071019'] * len(col_vals)
