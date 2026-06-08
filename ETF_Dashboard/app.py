@@ -78,7 +78,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 stocks = ["MON100.NS", "MASPTOP50.NS", "MAFANG.NS"]
-my_avg = pd.read_csv("ETF_Dashboard/my_avg.txt')
+my_avg = pd.read_csv('ETF_Dashboard/my_avg.txt')
 my_avg = my_avg.tail(1).drop(columns=['Date'])
 my_avg = my_avg.values.tolist()[0]
 
