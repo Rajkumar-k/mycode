@@ -193,7 +193,7 @@ weekly_group_avg = weekly_group_avg.tail(10).reset_index(drop=True)  # show only
 st.title("ETF Dashboard")
 
 # Single-column layout: show key metrics across the page, then the table below
-st.header("Key Metrics")
+st.header("Key Metrics (DoD)")
 # four KPI boxes: three price metrics + latest available date
 km1, km2, km3, km4 = st.columns(4)
 
