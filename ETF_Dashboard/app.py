@@ -197,6 +197,9 @@ weekly_group_avg['MAFANG_%'] = (
 weekly_group_avg = weekly_group_avg[[ 'YearWeek', 'MON100.NS','MON100_MyAvg', 'MON100_%','MASPTOP50.NS', 'MASPTOP50_MyAvg','MASPTOP50_%','MAFANG.NS',   'MAFANG_MyAvg',  'MAFANG_%']]
 weekly_group_avg = weekly_group_avg.tail(10).reset_index(drop=True)  # show only last 10 weeks for brevity
 
+#Chart 5
+
+
 
 st.title("ETF Dashboard")
 
@@ -284,11 +287,13 @@ try:
         header=dict(values=header_vals,
                     fill_color='#0B1220',
                     align='left',
-                    font=dict(color='#E6F7F0', size=14)),
+                    font=dict(color='#E6F7F0', size=14),
+                    height=36),
         cells=dict(values=cell_values,
                    fill_color=cell_fill_colors,
                    align='left',
-                   font=dict(color=cell_font_colors, size=13)))
+                   font=dict(color=cell_font_colors, size=13),
+                   height=30))
     ])
 
     # adjust height to fit rows: header + row_height * rows (capped)
@@ -303,7 +308,7 @@ try:
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)'
     )
-    st.plotly_chart(fig_table, use_container_width=True)
+    st.plotly_chart(fig_table, use_container_width=True, config={'displayModeBar': False})
 except Exception:
     # Fallback: simple full-width dataframe without styling
     st.dataframe(result, use_container_width=True, height=420)
@@ -369,11 +374,13 @@ try:
         header=dict(values=header_vals,
                     fill_color='#0B1220',
                     align='left',
-                    font=dict(color='#E6F7F0', size=14)),
+                    font=dict(color='#E6F7F0', size=14),
+                    height=36),
         cells=dict(values=cell_values,
                    fill_color=cell_fill_colors,
                    align='left',
-                   font=dict(color=cell_font_colors, size=14)))
+                   font=dict(color=cell_font_colors, size=14),
+                   height=30))
     ])
 
     # dynamic height for weekly table
@@ -382,13 +389,14 @@ try:
     row_h_w = 30
     max_h_w = 900
     calc_h_w = header_h_w + row_h_w * row_count_w + 24
+    # set the table height to the calculated height so it fully expands (no inner scrollbar)
     fig_wg.update_layout(
         margin=dict(t=8, b=8, l=8, r=8),
-        height=min(calc_h_w, max_h_w),
+        height=calc_h_w,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)'
     )
-    st.plotly_chart(fig_wg, use_container_width=True)
+    st.plotly_chart(fig_wg, use_container_width=True, config={'displayModeBar': False})
 except Exception:
     st.write(weekly_group_avg.tail(20))
 
@@ -410,3 +418,4 @@ fig.update_traces(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
