@@ -17,16 +17,75 @@ st.set_page_config(
 
 
 # ==================================================
+# TAB LOOK & FEEL
+# ==================================================
+
+st.markdown(
+    """
+    <style>
+    /* Main India / Global tab container */
+    div[data-baseweb="tab-list"] {
+        gap: 8px;
+        background: #0F172A;
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        margin-bottom: 18px;
+    }
+
+    /* Individual tabs */
+    button[data-baseweb="tab"] {
+        height: 46px;
+        border-radius: 9px;
+        padding: 0 24px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #CBD5E1;
+        background: transparent;
+        border: 1px solid transparent;
+    }
+
+    /* Selected tab */
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: white;
+        background: #0F766E;
+        border: 1px solid #14B8A6;
+        box-shadow: 0 3px 10px rgba(20, 184, 166, 0.20);
+    }
+
+    /* Tab hover */
+    button[data-baseweb="tab"]:hover {
+        color: white;
+        background: #1E293B;
+    }
+
+    /* Remove Streamlit's default tab underline */
+    div[data-baseweb="tab-highlight"] {
+        display: none;
+    }
+
+    /* Tab content spacing */
+    div[data-baseweb="tab-panel"] {
+        padding-top: 4px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ==================================================
 # MAIN HEADER
 # ==================================================
 
 st.markdown(
     """
     <div style="
-        background-color: #1E293B;
-        padding: 12px 20px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #0F172A, #1E293B);
+        padding: 14px 20px;
+        border-radius: 12px;
         border: 1px solid #475569;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.18);
         text-align: center;
         margin-bottom: 20px;
     ">
@@ -60,31 +119,56 @@ mf = Mftool()
 scheme_codes = {
 
     "Motilal Oswal Midcap Fund Direct Growth": {
+        "fund_type": "India",
         "code": "127042",
         "type": "Mid Cap"
     },
 
     "Canara Robeco Small Cap Fund Direct": {
+        "fund_type": "India",
         "code": "146130",
         "type": "Small Cap"
     },
 
     "Nippon India Small Cap Fund": {
+        "fund_type": "India",
         "code": "118778",
         "type": "Small Cap"
     },
 
     "Bandhan Small Cap Fund": {
+        "fund_type": "India",
         "code": "147946",
         "type": "Small Cap"
     },
 
     "Nippon India ELSS Cap Fund": {
+        "fund_type": "India",
         "code": "118803",
         "type": "ELSS"
+    },
+
+    "ICICI Prudential NASDAQ 100 Index Fund": {
+        "fund_type": "Global",
+        "code": "149219",
+        "type": "Equity"
     }
 }
+# ==================================================
+# INDIA / GLOBAL TAB MAPPING
+# ==================================================
 
+india_funds = [
+    fund_name
+    for fund_name, fund_info in scheme_codes.items()
+    if fund_info["fund_type"] == "India"
+]
+
+global_funds = [
+    fund_name
+    for fund_name, fund_info in scheme_codes.items()
+    if fund_info["fund_type"] == "Global"
+]
 
 # ==================================================
 # DEFAULT MY AVG VALUES
@@ -103,7 +187,9 @@ default_my_avg = {
 
     "Bandhan Small Cap Fund": 54,
 
-    "Nippon India ELSS Cap Fund": 138
+    "Nippon India ELSS Cap Fund": 138,
+
+    "ICICI Prudential NASDAQ 100 Index Fund": 21.5
 }
 
 
@@ -524,549 +610,48 @@ latest_nav_df = (
 
 
 # ==================================================
-# WEEK FILTER HEADER
+# INDIA / GLOBAL TABS
 # ==================================================
 
-st.markdown(
-    """
-    <div style="
-        background-color: #1E293B;
-        padding: 10px 15px;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    ">
-        <h3 style="
-            color: white;
-            margin: 0;
-        ">
-            📅 Week Filter
-        </h3>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# ==================================================
-# WEEK FILTER
-# ==================================================
-
-filter_options = [
-    10,
-    20,
-    50,
-    "ALL"
-]
-
-
-selected_weeks = st.selectbox(
-    "Show weeks",
-    options=filter_options,
-    index=1,
-    format_func=lambda x: (
-        "All Weeks"
-        if x == "ALL"
-        else f"Last {x} Weeks"
-    )
-)
-
-
-# ==================================================
-# APPLY FILTER FOR CHARTS
-# ==================================================
-
-if selected_weeks == "ALL":
-
-    filtered_nav = (
-        weekly_nav.copy()
-    )
-
-else:
-
-    filtered_nav = (
-        weekly_nav[
-            weekly_nav["week_rank"]
-            <= selected_weeks
-        ]
-        .copy()
-    )
-
-
-# ==================================================
-# SORT FILTERED DATA
-# ==================================================
-
-filtered_nav = (
-    filtered_nav
-    .sort_values(
-        [
-            "week_rank",
-            "Fund Type",
-            "Fund Name"
-        ]
-    )
-    .reset_index(
-        drop=True
-    )
-)
-
-
-# ==================================================
-# FUND TYPES
-# ==================================================
-
-fund_types = (
-    weekly_nav[
-        "Fund Type"
-    ]
-    .drop_duplicates()
-    .tolist()
-)
-
-
-# ==================================================
-# TOP 5 MINIMUM NAV SECTION
-# ==================================================
-
-st.markdown(
-    """
-    <div style="
-        background-color: #1E293B;
-        padding: 10px 15px;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        margin-top: 25px;
-        margin-bottom: 15px;
-    ">
-        <h3 style="
-            color: white;
-            margin: 0;
-            text-align: center;
-        ">
-            🔻 Top 5 Minimum NAV
-        </h3>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# ==================================================
-# CREATE SECTION FOR EACH FUND TYPE
-# ==================================================
-
-for fund_type in fund_types:
-
-    # --------------------------------------------------
-    # FUND TYPE HEADER
-    # --------------------------------------------------
-
-    st.markdown(
-        f"""
-        <div style="
-            background-color: #0F766E;
-            padding: 9px 15px;
-            border-radius: 7px;
-            margin-top: 15px;
-            margin-bottom: 10px;
-        ">
-            <h3 style="
-                color: white;
-                margin: 0;
-                text-align: center;
-            ">
-                📂 {fund_type}
-            </h3>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-    # --------------------------------------------------
-    # FUNDS IN THIS TYPE
-    # --------------------------------------------------
-
-    type_funds = (
-        weekly_nav[
-            weekly_nav["Fund Type"]
-            == fund_type
-        ]
-        ["Fund Name"]
-        .drop_duplicates()
-        .tolist()
-    )
-
-
-    # --------------------------------------------------
-    # TABLE COLUMNS
-    # --------------------------------------------------
-
-    table_cols = st.columns(
-        len(type_funds)
-    )
-
-
-    # ==================================================
-    # CREATE TABLE FOR EACH FUND
-    # ==================================================
-
-    for col, fund_name in zip(
-        table_cols,
-        type_funds
-    ):
-
-        with col:
-
-            # --------------------------------------------------
-            # FUND NAME HEADER
-            # --------------------------------------------------
-
-            st.markdown(
-                f"""
-                <div style="
-                    background-color: #334155;
-                    padding: 8px 10px;
-                    border-radius: 6px;
-                    margin-bottom: 8px;
-                    text-align: center;
-                ">
-                    <h4 style="
-                        color: white;
-                        margin: 0;
-                        font-size: 15px;
-                    ">
-                        {fund_name}
-                    </h4>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-            # ==================================================
-            # FULL FUND DATA
-            # ==================================================
-
-            fund_min_df = (
-                weekly_nav[
-                    weekly_nav["Fund Name"]
-                    == fund_name
-                ]
-                .copy()
-            )
-
-
-            # ==================================================
-            # GET LATEST NAV
-            # ==================================================
-
-            latest_nav = (
-                fund_min_df
-                .loc[
-                    fund_min_df["week_rank"] == 1,
-                    "avg_nav"
-                ]
-                .iloc[0]
-            )
-
-
-            # ==================================================
-            # GET TOP 5 MINIMUM NAV
-            # ==================================================
-
-            min_nav = (
-                fund_min_df
-                .nsmallest(
-                    5,
-                    "avg_nav"
-                )
-                [
-                    [
-                        "week_date",
-                        "avg_nav"
-                    ]
-                ]
-                .copy()
-            )
-
-
-            # ==================================================
-            # LATEST NAV COLUMN
-            # ==================================================
-
-            min_nav["Latest NAV"] = (
-                latest_nav
-            )
-
-
-            # ==================================================
-            # % DIFFERENCE
-            #
-            # Latest NAV compared with
-            # historical minimum NAV
-            # ==================================================
-
-            min_nav["% Diff"] = (
-                (
-                    (
-                        latest_nav
-                        - min_nav["avg_nav"]
-                    )
-                    / min_nav["avg_nav"]
-                )
-                * 100
-            )
-
-
-            # ==================================================
-            # FORMAT DATE
-            # ==================================================
-
-            min_nav["week_date"] = (
-                min_nav["week_date"]
-                .dt.strftime(
-                    "%d-%b-%Y"
-                )
-            )
-
-
-            # ==================================================
-            # RENAME COLUMNS
-            # ==================================================
-
-            min_nav = (
-                min_nav
-                .rename(
-                    columns={
-                        "week_date": "Week",
-                        "avg_nav": "NAV"
-                    }
-                )
-            )
-
-
-            # ==================================================
-            # COLUMN ORDER
-            # ==================================================
-
-            min_nav = min_nav[
-                [
-                    "Week",
-                    "NAV",
-                    "Latest NAV",
-                    "% Diff"
-                ]
-            ]
-
-
-            # ==================================================
-            # ROUND VALUES
-            # ==================================================
-
-            min_nav["NAV"] = (
-                min_nav["NAV"]
-                .round(2)
-            )
-
-            min_nav["Latest NAV"] = (
-                min_nav["Latest NAV"]
-                .round(2)
-            )
-
-            min_nav["% Diff"] = (
-                min_nav["% Diff"]
-                .round(2)
-            )
-
-
-            # ==================================================
-            # COLOR FUNCTION
-            # ==================================================
-
-            def color_diff(value):
-
-                if value > 0:
-
-                    return (
-                        "color: green; "
-                        "font-weight: bold;"
-                    )
-
-                elif value < 0:
-
-                    return (
-                        "color: red; "
-                        "font-weight: bold;"
-                    )
-
-                else:
-
-                    return (
-                        "font-weight: bold;"
-                    )
-
-
-            # ==================================================
-            # STYLE TABLE
-            # ==================================================
-
-            styled_table = (
-                min_nav.style
-                .map(
-                    color_diff,
-                    subset=[
-                        "% Diff"
-                    ]
-                )
-                .format(
-                    {
-                        "NAV": "{:.2f}",
-                        "Latest NAV": "{:.2f}",
-                        "% Diff": "{:+.2f}%"
-                    }
-                )
-            )
-
-
-            # ==================================================
-            # DISPLAY TABLE
-            # ==================================================
-
-            st.dataframe(
-                styled_table,
-                use_container_width=True,
-                hide_index=True
-            )
-
-
-# ==================================================
-# WEEKLY NAV CHART SECTION
-# ==================================================
-
-st.markdown(
-    """
-    <div style="
-        background-color: #1E293B;
-        padding: 10px 15px;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        margin-top: 30px;
-        margin-bottom: 15px;
-    ">
-        <h3 style="
-            color: white;
-            margin: 0;
-            text-align: center;
-        ">
-            📈 Weekly NAV Charts
-        </h3>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# ==================================================
-# CHARTS GROUPED BY FUND TYPE
-# ==================================================
-
-for fund_type in fund_types:
-
-    # --------------------------------------------------
-    # FUND TYPE HEADER
-    # --------------------------------------------------
-
-    st.markdown(
-        f"""
-        <div style="
-            background-color: #0F766E;
-            padding: 9px 15px;
-            border-radius: 7px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        ">
-            <h3 style="
-                color: white;
-                margin: 0;
-                text-align: center;
-            ">
-                📂 {fund_type}
-            </h3>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-    # --------------------------------------------------
-    # FUNDS IN THIS TYPE
-    # --------------------------------------------------
-
-    type_funds = (
-        weekly_nav[
-            weekly_nav["Fund Type"]
-            == fund_type
-        ]
-        ["Fund Name"]
-        .drop_duplicates()
-        .tolist()
-    )
-
-
-    # ==================================================
-    # ONE CHART BELOW ANOTHER
-    # ==================================================
-
-    for fund_name in type_funds:
+tab_india, tab_global = st.tabs(["🇮🇳 India", "🌎 Global"])
+
+for tab, fund_list in zip(
+    (tab_india, tab_global),
+    (india_funds, global_funds)
+):
+
+    with tab:
+
+        # Filter by fund name only.
+        # No Region column is added to the dataframes.
+        tab_nav = weekly_nav[
+            weekly_nav["Fund Name"].isin(fund_list)
+        ].copy()
+
+        if tab_nav.empty:
+            st.info("No mutual fund data available for this tab.")
+            continue
 
         # ==================================================
-        # FILTER CHART DATA
-        # ==================================================
-
-        fund_chart_df = (
-            filtered_nav[
-                filtered_nav["Fund Name"]
-                == fund_name
-            ]
-            .copy()
-        )
-
-
-        # ==================================================
-        # SORT OLDEST → LATEST
-        # ==================================================
-
-        fund_chart_df = (
-            fund_chart_df
-            .sort_values(
-                "week_date"
-            )
-        )
-
-
-        # ==================================================
-        # FUND NAME HEADER
+        # WEEK FILTER HEADER
         # ==================================================
 
         st.markdown(
-            f"""
+            """
             <div style="
-                background-color: #334155;
-                padding: 8px 15px;
-                border-radius: 6px;
-                margin-top: 15px;
-                margin-bottom: 5px;
+                background-color: #1E293B;
+                padding: 10px 15px;
+                border-radius: 8px;
+                border: 1px solid #475569;
+                margin-top: 20px;
+                margin-bottom: 10px;
             ">
-                <h4 style="
+                <h3 style="
                     color: white;
                     margin: 0;
-                    font-size: 17px;
                 ">
-                    {fund_name}
-                </h4>
+                    📅 Week Filter
+                </h3>
             </div>
             """,
             unsafe_allow_html=True
@@ -1074,134 +659,653 @@ for fund_type in fund_types:
 
 
         # ==================================================
-        # GET MY AVG
+        # WEEK FILTER
         # ==================================================
 
-        my_avg = st.session_state.my_avg_values.get(
-            fund_name,
-            default_my_avg.get(
-                fund_name,
-                0.0
+        filter_options = [
+            10,
+            20,
+            50,
+            "ALL"
+        ]
+
+
+        selected_weeks = st.selectbox(
+            "Show weeks",
+            options=filter_options,
+            index=1,
+            format_func=lambda x: (
+                "All Weeks"
+                if x == "ALL"
+                else f"Last {x} Weeks"
+            ),
+            key=f"show_weeks_{'india' if fund_list == india_funds else 'global'}"
+        )
+
+
+        # ==================================================
+        # APPLY FILTER FOR CHARTS
+        # ==================================================
+
+        if selected_weeks == "ALL":
+
+                filtered_nav = tab_nav.copy()
+
+        else:
+
+                filtered_nav = (
+                    tab_nav[
+                        tab_nav["week_rank"] <= selected_weeks
+                    ].copy()
+                )
+
+
+        # ==================================================
+        # SORT FILTERED DATA
+        # ==================================================
+
+        filtered_nav = (
+            filtered_nav
+            .sort_values(
+                [
+                    "week_rank",
+                    "Fund Type",
+                    "Fund Name"
+                ]
+            )
+            .reset_index(
+                drop=True
             )
         )
 
 
         # ==================================================
-        # PLOTLY LINE CHART
+        # FUND TYPES
         # ==================================================
 
-        fig = px.line(
-            fund_chart_df,
-            x="week_date",
-            y="avg_nav",
-            markers=True
-        )
-
-
-        # ==================================================
-        # DISPLAY NAV VALUE ON EVERY POINT
-        # ==================================================
-
-        fig.update_traces(
-
-            text=(
-                fund_chart_df[
-                    "avg_nav"
-                ]
-                .round(2)
-            ),
-
-            textposition="top center",
-
-            mode=(
-                "lines+markers+text"
-            ),
-
-            hovertemplate=(
-                "<b>Week:</b> "
-                "%{x|%d-%b-%Y}"
-                "<br>"
-                "<b>Rank:</b> "
-                "%{customdata}"
-                "<br>"
-                "<b>Average NAV:</b> "
-                "%{y:.2f}"
-                "<br>"
-                f"<b>My Avg:</b> {my_avg:.2f}"
-                "<extra></extra>"
-            ),
-
-            customdata=(
-                fund_chart_df[
-                    "week_rank"
-                ]
+        fund_types = (
+                tab_nav["Fund Type"]
+                .drop_duplicates()
+                .tolist()
             )
-        )
 
 
         # ==================================================
-        # ADD MY AVG REFERENCE LINE
-        # ==================================================
-
-        fig.add_hline(
-
-            y=my_avg,
-
-            line_dash="dash",
-
-            annotation_text=(
-                f"My Avg: {my_avg:.2f}"
-            ),
-
-            annotation_position="top left"
-        )
-
-
-        # ==================================================
-        # CHART LAYOUT
-        # ==================================================
-
-        fig.update_layout(
-
-            xaxis_title="Week",
-
-            yaxis_title="Average NAV",
-
-            height=400,
-
-            margin=dict(
-                l=20,
-                r=20,
-                t=40,
-                b=20
-            ),
-
-            showlegend=False
-        )
-
-
-        # ==================================================
-        # DISPLAY CHART
-        # ==================================================
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
-
-
-        # ==================================================
-        # SEPARATOR
+        # TOP 5 MINIMUM NAV SECTION
         # ==================================================
 
         st.markdown(
             """
-            <hr style="
-                border: 0;
-                border-top: 1px solid #475569;
+            <div style="
+                background-color: #1E293B;
+                padding: 10px 15px;
+                border-radius: 8px;
+                border: 1px solid #475569;
                 margin-top: 25px;
-                margin-bottom: 25px;
+                margin-bottom: 15px;
             ">
+                <h3 style="
+                    color: white;
+                    margin: 0;
+                    text-align: center;
+                ">
+                    🔻 Top 5 Minimum NAV
+                </h3>
+            </div>
             """,
             unsafe_allow_html=True
         )
+
+
+        # ==================================================
+        # CREATE SECTION FOR EACH FUND TYPE
+        # ==================================================
+
+        for fund_type in fund_types:
+
+            # --------------------------------------------------
+            # FUND TYPE HEADER
+            # --------------------------------------------------
+
+            st.markdown(
+                f"""
+                <div style="
+                    background-color: #0F766E;
+                    padding: 9px 15px;
+                    border-radius: 7px;
+                    margin-top: 15px;
+                    margin-bottom: 10px;
+                ">
+                    <h3 style="
+                        color: white;
+                        margin: 0;
+                        text-align: center;
+                    ">
+                        📂 {fund_type}
+                    </h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            # --------------------------------------------------
+            # FUNDS IN THIS TYPE
+            # --------------------------------------------------
+
+            type_funds = (
+                tab_nav[
+                    tab_nav["Fund Type"]
+                    == fund_type
+                ]
+                ["Fund Name"]
+                .drop_duplicates()
+                .tolist()
+            )
+
+
+            # --------------------------------------------------
+            # TABLE COLUMNS
+            # --------------------------------------------------
+
+            table_cols = st.columns(
+                len(type_funds)
+            )
+
+
+            # ==================================================
+            # CREATE TABLE FOR EACH FUND
+            # ==================================================
+
+            for col, fund_name in zip(
+                table_cols,
+                type_funds
+            ):
+
+                with col:
+
+                    # --------------------------------------------------
+                    # FUND NAME HEADER
+                    # --------------------------------------------------
+
+                    st.markdown(
+                        f"""
+                        <div style="
+                            background-color: #334155;
+                            padding: 8px 10px;
+                            border-radius: 6px;
+                            margin-bottom: 8px;
+                            text-align: center;
+                        ">
+                            <h4 style="
+                                color: white;
+                                margin: 0;
+                                font-size: 15px;
+                            ">
+                                {fund_name}
+                            </h4>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+
+                    # ==================================================
+                    # FULL FUND DATA
+                    # ==================================================
+
+                    fund_min_df = (
+                        tab_nav[
+                            tab_nav["Fund Name"]
+                            == fund_name
+                        ]
+                        .copy()
+                    )
+
+
+                    # ==================================================
+                    # GET LATEST NAV
+                    # ==================================================
+
+                    latest_nav = (
+                        fund_min_df
+                        .loc[
+                            fund_min_df["week_rank"] == 1,
+                            "avg_nav"
+                        ]
+                        .iloc[0]
+                    )
+
+
+                    # ==================================================
+                    # GET TOP 5 MINIMUM NAV
+                    # ==================================================
+
+                    min_nav = (
+                        fund_min_df
+                        .nsmallest(
+                            5,
+                            "avg_nav"
+                        )
+                        [
+                            [
+                                "week_date",
+                                "avg_nav"
+                            ]
+                        ]
+                        .copy()
+                    )
+
+
+                    # ==================================================
+                    # LATEST NAV COLUMN
+                    # ==================================================
+
+                    min_nav["Latest NAV"] = (
+                        latest_nav
+                    )
+
+
+                    # ==================================================
+                    # % DIFFERENCE
+                    #
+                    # Latest NAV compared with
+                    # historical minimum NAV
+                    # ==================================================
+
+                    min_nav["% Diff"] = (
+                        (
+                            (
+                                latest_nav
+                                - min_nav["avg_nav"]
+                            )
+                            / min_nav["avg_nav"]
+                        )
+                        * 100
+                    )
+
+
+                    # ==================================================
+                    # FORMAT DATE
+                    # ==================================================
+
+                    min_nav["week_date"] = (
+                        min_nav["week_date"]
+                        .dt.strftime(
+                            "%d-%b-%Y"
+                        )
+                    )
+
+
+                    # ==================================================
+                    # RENAME COLUMNS
+                    # ==================================================
+
+                    min_nav = (
+                        min_nav
+                        .rename(
+                            columns={
+                                "week_date": "Week",
+                                "avg_nav": "NAV"
+                            }
+                        )
+                    )
+
+
+                    # ==================================================
+                    # COLUMN ORDER
+                    # ==================================================
+
+                    min_nav = min_nav[
+                        [
+                            "Week",
+                            "NAV",
+                            "Latest NAV",
+                            "% Diff"
+                        ]
+                    ]
+
+
+                    # ==================================================
+                    # ROUND VALUES
+                    # ==================================================
+
+                    min_nav["NAV"] = (
+                        min_nav["NAV"]
+                        .round(2)
+                    )
+
+                    min_nav["Latest NAV"] = (
+                        min_nav["Latest NAV"]
+                        .round(2)
+                    )
+
+                    min_nav["% Diff"] = (
+                        min_nav["% Diff"]
+                        .round(2)
+                    )
+
+
+                    # ==================================================
+                    # COLOR FUNCTION
+                    # ==================================================
+
+                    def color_diff(value):
+
+                        if value > 0:
+
+                            return (
+                                "color: green; "
+                                "font-weight: bold;"
+                            )
+
+                        elif value < 0:
+
+                            return (
+                                "color: red; "
+                                "font-weight: bold;"
+                            )
+
+                        else:
+
+                            return (
+                                "font-weight: bold;"
+                            )
+
+
+                    # ==================================================
+                    # STYLE TABLE
+                    # ==================================================
+
+                    styled_table = (
+                        min_nav.style
+                        .map(
+                            color_diff,
+                            subset=[
+                                "% Diff"
+                            ]
+                        )
+                        .format(
+                            {
+                                "NAV": "{:.2f}",
+                                "Latest NAV": "{:.2f}",
+                                "% Diff": "{:+.2f}%"
+                            }
+                        )
+                    )
+
+
+                    # ==================================================
+                    # DISPLAY TABLE
+                    # ==================================================
+
+                    st.dataframe(
+                        styled_table,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+
+        # ==================================================
+        # WEEKLY NAV CHART SECTION
+        # ==================================================
+
+        st.markdown(
+            """
+            <div style="
+                background-color: #1E293B;
+                padding: 10px 15px;
+                border-radius: 8px;
+                border: 1px solid #475569;
+                margin-top: 30px;
+                margin-bottom: 15px;
+            ">
+                <h3 style="
+                    color: white;
+                    margin: 0;
+                    text-align: center;
+                ">
+                    📈 Weekly NAV Charts
+                </h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        # ==================================================
+        # CHARTS GROUPED BY FUND TYPE
+        # ==================================================
+
+        for fund_type in fund_types:
+
+            # --------------------------------------------------
+            # FUND TYPE HEADER
+            # --------------------------------------------------
+
+            st.markdown(
+                f"""
+                <div style="
+                    background-color: #0F766E;
+                    padding: 9px 15px;
+                    border-radius: 7px;
+                    margin-top: 20px;
+                    margin-bottom: 10px;
+                ">
+                    <h3 style="
+                        color: white;
+                        margin: 0;
+                        text-align: center;
+                    ">
+                        📂 {fund_type}
+                    </h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            # --------------------------------------------------
+            # FUNDS IN THIS TYPE
+            # --------------------------------------------------
+
+            type_funds = (
+                tab_nav[
+                    tab_nav["Fund Type"]
+                    == fund_type
+                ]
+                ["Fund Name"]
+                .drop_duplicates()
+                .tolist()
+            )
+
+
+            # ==================================================
+            # ONE CHART BELOW ANOTHER
+            # ==================================================
+
+            for fund_name in type_funds:
+
+                # ==================================================
+                # FILTER CHART DATA
+                # ==================================================
+
+                fund_chart_df = (
+                    filtered_nav[
+                        filtered_nav["Fund Name"]
+                        == fund_name
+                    ]
+                    .copy()
+                )
+
+
+                # ==================================================
+                # SORT OLDEST → LATEST
+                # ==================================================
+
+                fund_chart_df = (
+                    fund_chart_df
+                    .sort_values(
+                        "week_date"
+                    )
+                )
+
+
+                # ==================================================
+                # FUND NAME HEADER
+                # ==================================================
+
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color: #334155;
+                        padding: 8px 15px;
+                        border-radius: 6px;
+                        margin-top: 15px;
+                        margin-bottom: 5px;
+                    ">
+                        <h4 style="
+                            color: white;
+                            margin: 0;
+                            font-size: 17px;
+                        ">
+                            {fund_name}
+                        </h4>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+                # ==================================================
+                # GET MY AVG
+                # ==================================================
+
+                my_avg = st.session_state.my_avg_values.get(
+                    fund_name,
+                    default_my_avg.get(
+                        fund_name,
+                        0.0
+                    )
+                )
+
+
+                # ==================================================
+                # PLOTLY LINE CHART
+                # ==================================================
+
+                fig = px.line(
+                    fund_chart_df,
+                    x="week_date",
+                    y="avg_nav",
+                    markers=True
+                )
+
+
+                # ==================================================
+                # DISPLAY NAV VALUE ON EVERY POINT
+                # ==================================================
+
+                fig.update_traces(
+
+                    text=(
+                        fund_chart_df[
+                            "avg_nav"
+                        ]
+                        .round(2)
+                    ),
+
+                    textposition="top center",
+
+                    mode=(
+                        "lines+markers+text"
+                    ),
+
+                    hovertemplate=(
+                        "<b>Week:</b> "
+                        "%{x|%d-%b-%Y}"
+                        "<br>"
+                        "<b>Rank:</b> "
+                        "%{customdata}"
+                        "<br>"
+                        "<b>Average NAV:</b> "
+                        "%{y:.2f}"
+                        "<br>"
+                        f"<b>My Avg:</b> {my_avg:.2f}"
+                        "<extra></extra>"
+                    ),
+
+                    customdata=(
+                        fund_chart_df[
+                            "week_rank"
+                        ]
+                    )
+                )
+
+
+                # ==================================================
+                # ADD MY AVG REFERENCE LINE
+                # ==================================================
+
+                fig.add_hline(
+
+                    y=my_avg,
+
+                    line_dash="dash",
+
+                    annotation_text=(
+                        f"My Avg: {my_avg:.2f}"
+                    ),
+
+                    annotation_position="top left"
+                )
+
+
+                # ==================================================
+                # CHART LAYOUT
+                # ==================================================
+
+                fig.update_layout(
+
+                    xaxis_title="Week",
+
+                    yaxis_title="Average NAV",
+
+                    height=400,
+
+                    margin=dict(
+                        l=20,
+                        r=20,
+                        t=40,
+                        b=20
+                    ),
+
+                    showlegend=False
+                )
+
+
+                # ==================================================
+                # DISPLAY CHART
+                # ==================================================
+
+                st.plotly_chart(
+                    fig,
+                    use_container_width=True
+                )
+
+
+                # ==================================================
+                # SEPARATOR
+                # ==================================================
+
+                st.markdown(
+                    """
+                    <hr style="
+                        border: 0;
+                        border-top: 1px solid #475569;
+                        margin-top: 25px;
+                        margin-bottom: 25px;
+                    ">
+                    """,
+                    unsafe_allow_html=True
+                )
