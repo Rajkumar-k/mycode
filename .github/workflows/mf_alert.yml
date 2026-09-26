@@ -20,6 +20,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -29,6 +31,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r mf_alert_app/requirements.txt
+
+      - name: Sync with latest main
+        run: |
+          git pull --rebase origin main
 
       - name: Run mutual fund script
         env:
@@ -45,11 +51,9 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
+
           git add mf_alert_app/output.csv
-      
+
           git diff --cached --quiet || git commit -m "Update mutual fund output"
-      
-          git pull --rebase origin main
-      
+
           git push origin main
