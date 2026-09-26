@@ -3,7 +3,6 @@ name: Mutual Fund Alert
 on:
   schedule:
     - cron: "30 15 * * 1-5"
-
   workflow_dispatch:
 
 permissions:
@@ -14,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -27,6 +27,9 @@ jobs:
           pip install -r mf_alert_app/requirements.txt
 
       - name: Run mutual fund script
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python mf_alert_app/main.py
 
@@ -38,9 +41,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add mf_alert_app/output.csv
-
           git diff --cached --quiet || git commit -m "Update mutual fund output"
-
           git push
