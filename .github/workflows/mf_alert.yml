@@ -2,7 +2,7 @@ name: Mutual Fund Alert
 
 on:
   schedule:
-    - cron: "30 15 * * 1-5"
+    - cron: "30 9 * * *"
   workflow_dispatch:
 
 permissions:
