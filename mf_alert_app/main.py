@@ -149,3 +149,22 @@ result = result[
 ].round(2).reset_index()
 
 result.to_csv(output_file, index=False)
+
+# Convert final dataframe to message
+message = "📊 Mutual Fund Weekly Report\n\n"
+
+for _, row in result.iterrows():
+
+    message += f"Fund: {row['Fund']}\n"
+
+    for col in ["W1 vs W3", "W1 vs W5", "W1 vs W7",
+                "W1 vs W12", "W1 vs W15"]:
+
+        value = row[col]
+
+        if pd.notna(value):
+            message += f"{col}: {value:.2f}%\n"
+
+    message += "\n"
+
+print(message)
