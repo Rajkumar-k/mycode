@@ -1,11 +1,11 @@
 from mftool import Mftool
 import pandas as pd
+from bot import send_telegram
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
 output_file = BASE_DIR / "output.csv"
-
 
 scheme_codes = {
 
@@ -149,22 +149,35 @@ result = result[
 ].round(2).reset_index()
 
 result.to_csv(output_file, index=False)
+#result.to_csv("mf_alert_app/output.csv", index=False)
 
 message = "📊 *Mutual Fund Weekly Report*\n\n"
+
+columns = [
+    "W1 vs W3",
+    "W1 vs W5",
+    "W1 vs W7",
+    "W1 vs W12",
+    "W1 vs W15"
+]
 
 for _, row in result.iterrows():
 
     message += f"*{row['Fund']}*\n"
 
-    values = []
-
-    for col in ["W1 vs W3", "W1 vs W5", "W1 vs W7",
-                "W1 vs W12", "W1 vs W15"]:
+    for col in columns:
 
         value = row[col]
 
         if pd.notna(value):
-            values.append(f"{col}: {value:.2f}%")
 
-    message += " | ".join(values)
-    message += "\n\n"
+            if value < 0:
+                emoji = "🟢"
+            else:
+                emoji = "🔴"
+
+            message += f"{emoji} {col}: {value:.2f}%\n"
+
+    message += "\n"
+print(message)
+send_telegram(message)
