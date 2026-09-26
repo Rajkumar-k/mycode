@@ -1,5 +1,10 @@
 from mftool import Mftool
 import pandas as pd
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+output_file = BASE_DIR / "output.csv"
 
 
 scheme_codes = {
@@ -143,4 +148,4 @@ result = result[
     [f"W1 vs W{r}" for r in [3, 5, 7, 12, 15]]
 ].round(2).reset_index()
 
-result.to_csv("mf_alert_app/output.csv", index=False)
+result.to_csv(output_file, index=False)
