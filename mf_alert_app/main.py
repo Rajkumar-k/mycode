@@ -151,7 +151,7 @@ result = result[
 result.to_csv(output_file, index=False)
 #result.to_csv("mf_alert_app/output.csv", index=False)
 
-message = "📊 *Mutual Fund Weekly Report*\n\n"
+message = "📊 *Mutual Fund Daily Report*\n\n"
 
 columns = [
     "W1 vs W3",
