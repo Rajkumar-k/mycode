@@ -130,22 +130,22 @@ scheme_codes = {
         "type": "Small Cap"
     },
 
-    "Nippon India Small Cap Fund": {
-        "fund_type": "India",
-        "code": "118778",
-        "type": "Small Cap"
-    },
-
     "Bandhan Small Cap Fund": {
         "fund_type": "India",
         "code": "147946",
         "type": "Small Cap"
     },
 
-    "Nippon India ELSS Cap Fund": {
+    "Motilal Oswal Infra Fund": {
         "fund_type": "India",
-        "code": "118803",
-        "type": "ELSS"
+        "code": "153484",
+        "type": "Sectorial"
+    },
+
+    "Invesco Healthcare & Pharma Fund": {
+        "fund_type": "India",
+        "code": "154547",
+        "type": "Sectorial"
     },
 
     "ICICI Prudential NASDAQ 100 Index Fund": {
