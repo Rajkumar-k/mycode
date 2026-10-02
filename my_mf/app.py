@@ -182,6 +182,11 @@ global_funds = [
     if fund_info["fund_type"] == "Global"
 ]
 
+flexi_funds = [
+    fund_name
+    for fund_name, fund_info in scheme_codes.items()
+    if fund_info["fund_type"] == "Flexi Analysis"
+]
 # ==================================================
 # DEFAULT MY AVG VALUES
 #
