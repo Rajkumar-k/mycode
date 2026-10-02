@@ -152,6 +152,18 @@ scheme_codes = {
         "fund_type": "Global",
         "code": "149219",
         "type": "Equity"
+    },
+
+    "HDFC Flexi Cap Fund": {
+        "fund_type": "Flexi Analysis",
+        "code": "118955",
+        "type": "Equity"
+    },
+
+    "Bank of India Flexi Cap": {
+        "fund_type": "Flexi Analysis",
+        "code": "148404",
+        "type": "Equity"
     }
 }
 # ==================================================
