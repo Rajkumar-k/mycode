@@ -31,7 +31,6 @@ st.markdown(
     """
     <style>
 
-    /* Main tab container */
     div[data-baseweb="tab-list"] {
         gap: 8px;
         background: #0F172A;
@@ -41,7 +40,6 @@ st.markdown(
         margin-bottom: 18px;
     }
 
-    /* Individual tabs */
     button[data-baseweb="tab"] {
         height: 46px;
         border-radius: 9px;
@@ -53,7 +51,6 @@ st.markdown(
         border: 1px solid transparent;
     }
 
-    /* Selected tab */
     button[data-baseweb="tab"][aria-selected="true"] {
         color: white;
         background: #0F766E;
@@ -61,18 +58,15 @@ st.markdown(
         box-shadow: 0 3px 10px rgba(20, 184, 166, 0.20);
     }
 
-    /* Tab hover */
     button[data-baseweb="tab"]:hover {
         color: white;
         background: #1E293B;
     }
 
-    /* Remove Streamlit default underline */
     div[data-baseweb="tab-highlight"] {
         display: none;
     }
 
-    /* Tab content spacing */
     div[data-baseweb="tab-panel"] {
         padding-top: 4px;
     }
@@ -120,10 +114,6 @@ mf = Mftool()
 
 # ============================================================
 # MUTUAL FUND SCHEME CODES
-#
-# fund_type = Dashboard tab
-# type      = Fund category inside the tab
-# code      = AMFI scheme code
 # ============================================================
 
 scheme_codes = {
@@ -238,7 +228,7 @@ default_my_avg = {
 
 
 # ============================================================
-# CREATE SESSION STATE FOR MY AVG
+# SESSION STATE FOR MY AVG
 # ============================================================
 
 if "my_avg_values" not in st.session_state:
@@ -256,7 +246,7 @@ if "my_avg_values" not in st.session_state:
 
 
 # ============================================================
-# MY AVG REPORT SETTINGS
+# MY AVG SETTINGS
 # ============================================================
 
 st.markdown(
@@ -284,7 +274,7 @@ st.markdown(
 st.caption(
     "Change the My Avg value for each fund. "
     "The selected value is used as the reference line "
-    "in that fund's chart."
+    "in that fund's chart and comparison tables."
 )
 
 
@@ -357,18 +347,9 @@ with st.spinner(
                 end_date
             )
 
-            # ------------------------------------------------
-            # Convert API response to DataFrame
-            # ------------------------------------------------
-
             df = pd.DataFrame(
                 data["data"]
             )
-
-
-            # ------------------------------------------------
-            # Check empty data
-            # ------------------------------------------------
 
             if df.empty:
 
@@ -380,7 +361,7 @@ with st.spinner(
 
 
             # ------------------------------------------------
-            # Convert NAV to numeric
+            # NAV numeric
             # ------------------------------------------------
 
             df["nav"] = pd.to_numeric(
@@ -390,7 +371,7 @@ with st.spinner(
 
 
             # ------------------------------------------------
-            # Convert date
+            # Date conversion
             # ------------------------------------------------
 
             df["date"] = pd.to_datetime(
@@ -401,7 +382,7 @@ with st.spinner(
 
 
             # ------------------------------------------------
-            # Remove invalid records
+            # Remove invalid rows
             # ------------------------------------------------
 
             df = df.dropna(
@@ -422,7 +403,7 @@ with st.spinner(
 
 
             # ------------------------------------------------
-            # Set date as index
+            # Set index
             # ------------------------------------------------
 
             df = df.set_index(
@@ -431,7 +412,7 @@ with st.spinner(
 
 
             # ------------------------------------------------
-            # Store NAV + Fund Type
+            # Store
             # ------------------------------------------------
 
             temp_df = pd.DataFrame({
@@ -499,7 +480,7 @@ nav_history = nav_history.dropna(
 
 
 # ============================================================
-# SORT NAV HISTORY
+# SORT
 # ============================================================
 
 nav_history = (
@@ -558,7 +539,7 @@ weekly_nav = (
 
 
 # ============================================================
-# ROUND WEEKLY AVERAGE
+# ROUND WEEKLY NAV
 # ============================================================
 
 weekly_nav["avg_nav"] = (
@@ -589,9 +570,10 @@ weekly_nav = (
 # ============================================================
 # WEEK RANK
 #
-# Latest week = 1
-# Previous week = 2
-# etc.
+# W1 = latest
+# W2 = previous
+# W3 = third latest
+# ...
 # ============================================================
 
 unique_weeks = (
@@ -648,28 +630,6 @@ weekly_nav = (
 
 
 # ============================================================
-# LATEST NAV FOR EACH FUND
-# ============================================================
-
-latest_nav_df = (
-    weekly_nav[
-        weekly_nav["week_rank"] == 1
-    ]
-    [
-        [
-            "Fund Name",
-            "avg_nav"
-        ]
-    ]
-    .rename(
-        columns={
-            "avg_nav": "Latest NAV"
-        }
-    )
-)
-
-
-# ============================================================
 # CREATE TABS
 # ============================================================
 
@@ -684,7 +644,7 @@ tab_india, tab_global, tab_flexi, tab_weekly = st.tabs(
 
 
 # ============================================================
-# FUNCTION FOR NORMAL FUND TABS
+# FUNCTION: NORMAL FUND TABS
 # ============================================================
 
 def render_fund_tab(
@@ -696,7 +656,7 @@ def render_fund_tab(
     with tab:
 
         # ====================================================
-        # FILTER BY FUND NAME
+        # FILTER
         # ====================================================
 
         tab_nav = weekly_nav[
@@ -767,7 +727,7 @@ def render_fund_tab(
 
 
         # ====================================================
-        # APPLY FILTER FOR CHARTS
+        # APPLY FILTER
         # ====================================================
 
         if selected_weeks == "ALL":
@@ -785,7 +745,7 @@ def render_fund_tab(
 
 
         # ====================================================
-        # SORT FILTERED DATA
+        # SORT
         # ====================================================
 
         filtered_nav = (
@@ -815,7 +775,7 @@ def render_fund_tab(
 
 
         # ====================================================
-        # TOP 5 MINIMUM NAV SECTION
+        # TOP 5 MINIMUM NAV
         # ====================================================
 
         st.markdown(
@@ -842,14 +802,10 @@ def render_fund_tab(
 
 
         # ====================================================
-        # CREATE SECTION FOR EACH FUND TYPE
+        # EACH FUND TYPE
         # ====================================================
 
         for fund_type in fund_types:
-
-            # ------------------------------------------------
-            # FUND TYPE HEADER
-            # ------------------------------------------------
 
             st.markdown(
                 f"""
@@ -873,10 +829,6 @@ def render_fund_tab(
             )
 
 
-            # ------------------------------------------------
-            # FUNDS IN THIS TYPE
-            # ------------------------------------------------
-
             type_funds = (
                 tab_nav[
                     tab_nav["Fund Type"]
@@ -888,17 +840,13 @@ def render_fund_tab(
             )
 
 
-            # ------------------------------------------------
-            # TABLE COLUMNS
-            # ------------------------------------------------
-
             table_cols = st.columns(
                 len(type_funds)
             )
 
 
             # =================================================
-            # CREATE TABLE FOR EACH FUND
+            # FUND TABLES
             # =================================================
 
             for col, fund_name in zip(
@@ -907,10 +855,6 @@ def render_fund_tab(
             ):
 
                 with col:
-
-                    # -----------------------------------------
-                    # FUND NAME HEADER
-                    # -----------------------------------------
 
                     st.markdown(
                         f"""
@@ -934,10 +878,6 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # FULL FUND DATA
-                    # =========================================
-
                     fund_min_df = (
                         tab_nav[
                             tab_nav["Fund Name"]
@@ -945,10 +885,6 @@ def render_fund_tab(
                         ].copy()
                     )
 
-
-                    # =========================================
-                    # GET LATEST NAV
-                    # =========================================
 
                     latest_nav = (
                         fund_min_df
@@ -959,10 +895,6 @@ def render_fund_tab(
                         .iloc[0]
                     )
 
-
-                    # =========================================
-                    # TOP 5 MINIMUM NAV
-                    # =========================================
 
                     min_nav = (
                         fund_min_df
@@ -980,18 +912,10 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # LATEST NAV COLUMN
-                    # =========================================
-
                     min_nav["Latest NAV"] = (
                         latest_nav
                     )
 
-
-                    # =========================================
-                    # % DIFFERENCE
-                    # =========================================
 
                     min_nav["% Diff"] = (
                         (
@@ -1005,10 +929,6 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # FORMAT DATE
-                    # =========================================
-
                     min_nav["week_date"] = (
                         min_nav["week_date"]
                         .dt.strftime(
@@ -1016,10 +936,6 @@ def render_fund_tab(
                         )
                     )
 
-
-                    # =========================================
-                    # RENAME
-                    # =========================================
 
                     min_nav = (
                         min_nav
@@ -1032,10 +948,6 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # COLUMN ORDER
-                    # =========================================
-
                     min_nav = min_nav[
                         [
                             "Week",
@@ -1045,10 +957,6 @@ def render_fund_tab(
                         ]
                     ]
 
-
-                    # =========================================
-                    # ROUND VALUES
-                    # =========================================
 
                     min_nav["NAV"] = (
                         min_nav["NAV"]
@@ -1066,11 +974,10 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # COLOR FUNCTION
-                    # =========================================
-
                     def color_diff(value):
+
+                        if pd.isna(value):
+                            return ""
 
                         if value > 0:
 
@@ -1086,16 +993,8 @@ def render_fund_tab(
                                 "font-weight: bold;"
                             )
 
-                        else:
+                        return "font-weight: bold;"
 
-                            return (
-                                "font-weight: bold;"
-                            )
-
-
-                    # =========================================
-                    # STYLE TABLE
-                    # =========================================
 
                     styled_table = (
                         min_nav.style
@@ -1115,10 +1014,6 @@ def render_fund_tab(
                     )
 
 
-                    # =========================================
-                    # DISPLAY TABLE
-                    # =========================================
-
                     st.dataframe(
                         styled_table,
                         use_container_width=True,
@@ -1127,7 +1022,7 @@ def render_fund_tab(
 
 
         # ====================================================
-        # WEEKLY NAV CHART SECTION
+        # WEEKLY NAV CHARTS
         # ====================================================
 
         st.markdown(
@@ -1153,15 +1048,7 @@ def render_fund_tab(
         )
 
 
-        # ====================================================
-        # CHARTS GROUPED BY FUND TYPE
-        # ====================================================
-
         for fund_type in fund_types:
-
-            # ------------------------------------------------
-            # FUND TYPE HEADER
-            # ------------------------------------------------
 
             st.markdown(
                 f"""
@@ -1185,10 +1072,6 @@ def render_fund_tab(
             )
 
 
-            # ------------------------------------------------
-            # FUNDS IN THIS TYPE
-            # ------------------------------------------------
-
             type_funds = (
                 tab_nav[
                     tab_nav["Fund Type"]
@@ -1200,15 +1083,7 @@ def render_fund_tab(
             )
 
 
-            # =================================================
-            # ONE CHART BELOW ANOTHER
-            # =================================================
-
             for fund_name in type_funds:
-
-                # =============================================
-                # FILTER CHART DATA
-                # =============================================
 
                 fund_chart_df = (
                     filtered_nav[
@@ -1219,10 +1094,6 @@ def render_fund_tab(
                 )
 
 
-                # =============================================
-                # SORT OLDEST → LATEST
-                # =============================================
-
                 fund_chart_df = (
                     fund_chart_df
                     .sort_values(
@@ -1230,10 +1101,6 @@ def render_fund_tab(
                     )
                 )
 
-
-                # =============================================
-                # FUND NAME HEADER
-                # =============================================
 
                 st.markdown(
                     f"""
@@ -1257,10 +1124,6 @@ def render_fund_tab(
                 )
 
 
-                # =============================================
-                # GET MY AVG
-                # =============================================
-
                 my_avg = (
                     st.session_state.my_avg_values.get(
                         fund_name,
@@ -1272,10 +1135,6 @@ def render_fund_tab(
                 )
 
 
-                # =============================================
-                # PLOTLY LINE CHART
-                # =============================================
-
                 fig = px.line(
                     fund_chart_df,
                     x="week_date",
@@ -1283,10 +1142,6 @@ def render_fund_tab(
                     markers=True
                 )
 
-
-                # =============================================
-                # NAV VALUE ON EVERY POINT
-                # =============================================
 
                 fig.update_traces(
 
@@ -1299,9 +1154,7 @@ def render_fund_tab(
 
                     textposition="top center",
 
-                    mode=(
-                        "lines+markers+text"
-                    ),
+                    mode="lines+markers+text",
 
                     hovertemplate=(
                         "<b>Week:</b> "
@@ -1325,10 +1178,6 @@ def render_fund_tab(
                 )
 
 
-                # =============================================
-                # MY AVG REFERENCE LINE
-                # =============================================
-
                 fig.add_hline(
 
                     y=my_avg,
@@ -1342,10 +1191,6 @@ def render_fund_tab(
                     annotation_position="top left"
                 )
 
-
-                # =============================================
-                # CHART LAYOUT
-                # =============================================
 
                 fig.update_layout(
 
@@ -1366,20 +1211,12 @@ def render_fund_tab(
                 )
 
 
-                # =============================================
-                # DISPLAY CHART
-                # =============================================
-
                 st.plotly_chart(
                     fig,
                     use_container_width=True,
                     key=f"chart_{tab_key}_{fund_name}"
                 )
 
-
-                # =============================================
-                # SEPARATOR
-                # =============================================
 
                 st.markdown(
                     """
@@ -1395,7 +1232,7 @@ def render_fund_tab(
 
 
 # ============================================================
-# RENDER INDIA TAB
+# RENDER INDIA
 # ============================================================
 
 render_fund_tab(
@@ -1406,7 +1243,7 @@ render_fund_tab(
 
 
 # ============================================================
-# RENDER GLOBAL TAB
+# RENDER GLOBAL
 # ============================================================
 
 render_fund_tab(
@@ -1417,7 +1254,7 @@ render_fund_tab(
 
 
 # ============================================================
-# RENDER FLEXI ANALYSIS TAB
+# RENDER FLEXI ANALYSIS
 # ============================================================
 
 render_fund_tab(
@@ -1461,15 +1298,37 @@ with tab_weekly:
 
 
     st.caption(
-        "W1 = latest week. "
-        "Positive values mean the latest NAV is higher "
-        "than the comparison NAV."
+        "W1 = latest week. Positive values mean "
+        "the latest NAV is higher than the comparison NAV."
     )
 
 
     # ========================================================
-    # COMPARISON WEEKS
+    # TABLE 1
+    # W1 VS MY AVG / HISTORICAL WEEKS
     # ========================================================
+
+    st.markdown(
+        """
+        <div style="
+            background-color: #0F766E;
+            padding: 9px 15px;
+            border-radius: 7px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        ">
+            <h3 style="
+                color: white;
+                margin: 0;
+                text-align: center;
+            ">
+                📊 W1 vs Historical Weeks
+            </h3>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
     comparison_weeks = [
         3,
@@ -1484,18 +1343,10 @@ with tab_weekly:
     ]
 
 
-    # ========================================================
-    # CREATE COMPARISON DATA
-    # ========================================================
-
     comparison_rows = []
 
 
     for fund_name in scheme_codes:
-
-        # ----------------------------------------------------
-        # GET FUND DATA
-        # ----------------------------------------------------
 
         fund_data = (
             weekly_nav[
@@ -1505,10 +1356,6 @@ with tab_weekly:
             .copy()
         )
 
-
-        # ----------------------------------------------------
-        # GET W1
-        # ----------------------------------------------------
 
         w1_data = fund_data[
             fund_data["week_rank"] == 1
@@ -1527,10 +1374,6 @@ with tab_weekly:
         )
 
 
-        # ----------------------------------------------------
-        # GET MY AVG
-        # ----------------------------------------------------
-
         my_avg = float(
             st.session_state.my_avg_values.get(
                 fund_name,
@@ -1542,18 +1385,14 @@ with tab_weekly:
         )
 
 
-        # ----------------------------------------------------
-        # START ROW
-        # ----------------------------------------------------
-
         row = {
             "Fund Name": fund_name
         }
 
 
-        # ====================================================
+        # ----------------------------------------------------
         # W1 VS MY AVG
-        # ====================================================
+        # ----------------------------------------------------
 
         if my_avg != 0:
 
@@ -1571,9 +1410,9 @@ with tab_weekly:
             row["W1 vs My Avg"] = None
 
 
-        # ====================================================
+        # ----------------------------------------------------
         # W1 VS HISTORICAL WEEKS
-        # ====================================================
+        # ----------------------------------------------------
 
         for week in comparison_weeks:
 
@@ -1586,10 +1425,6 @@ with tab_weekly:
                 fund_data["week_rank"] == week
             ]
 
-
-            # ------------------------------------------------
-            # If week does not exist
-            # ------------------------------------------------
 
             if historical_data.empty:
 
@@ -1604,10 +1439,6 @@ with tab_weekly:
                 ].iloc[0]
             )
 
-
-            # ------------------------------------------------
-            # Avoid division by zero
-            # ------------------------------------------------
 
             if historical_nav == 0:
 
@@ -1630,18 +1461,10 @@ with tab_weekly:
         )
 
 
-    # ========================================================
-    # CREATE DATAFRAME
-    # ========================================================
-
     comparison_df = pd.DataFrame(
         comparison_rows
     )
 
-
-    # ========================================================
-    # COLUMN ORDER
-    # ========================================================
 
     comparison_columns = [
         "Fund Name",
@@ -1663,10 +1486,6 @@ with tab_weekly:
     ]
 
 
-    # ========================================================
-    # ROUND VALUES
-    # ========================================================
-
     percentage_columns = (
         comparison_columns[1:]
     )
@@ -1680,11 +1499,239 @@ with tab_weekly:
         )
 
 
+    def comparison_color(value):
+
+        if pd.isna(value):
+            return ""
+
+        if value > 0:
+
+            return (
+                "color: green; "
+                "font-weight: bold;"
+            )
+
+        elif value < 0:
+
+            return (
+                "color: red; "
+                "font-weight: bold;"
+            )
+
+        return "font-weight: bold;"
+
+
+    styled_comparison = (
+        comparison_df.style
+        .map(
+            comparison_color,
+            subset=percentage_columns
+        )
+        .format(
+            {
+                column: "{:+.2f}%"
+                for column in percentage_columns
+            }
+        )
+    )
+
+
+    st.dataframe(
+        styled_comparison,
+        use_container_width=True,
+        hide_index=True,
+        height=500
+    )
+
+
     # ========================================================
-    # COLOR FUNCTION
+    # TABLE 2
+    # MY AVG VS ALL WEEKS
     # ========================================================
 
-    def comparison_color(value):
+    st.markdown(
+        """
+        <div style="
+            background-color: #0F766E;
+            padding: 9px 15px;
+            border-radius: 7px;
+            margin-top: 35px;
+            margin-bottom: 10px;
+        ">
+            <h3 style="
+                color: white;
+                margin: 0;
+                text-align: center;
+            ">
+                🎯 My Avg vs All Weeks
+            </h3>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.caption(
+        "Positive = weekly NAV was above My Avg. "
+        "Negative = weekly NAV was below My Avg."
+    )
+
+
+    # ========================================================
+    # NUMBER OF WEEKS
+    #
+    # Show W1 through W30.
+    # If data is unavailable, the cell stays blank.
+    # ========================================================
+
+    max_comparison_week = 30
+
+
+    my_avg_rows = []
+
+
+    for fund_name in scheme_codes:
+
+        fund_data = (
+            weekly_nav[
+                weekly_nav["Fund Name"]
+                == fund_name
+            ]
+            .copy()
+        )
+
+
+        my_avg = float(
+            st.session_state.my_avg_values.get(
+                fund_name,
+                default_my_avg.get(
+                    fund_name,
+                    0.0
+                )
+            )
+        )
+
+
+        row = {
+            "Fund Name": fund_name
+        }
+
+
+        # ====================================================
+        # COMPARE MY AVG WITH EVERY WEEK
+        # ====================================================
+
+        for week in range(
+            1,
+            max_comparison_week + 1
+        ):
+
+            column_name = (
+                f"My Avg vs W{week}"
+            )
+
+
+            week_data = fund_data[
+                fund_data["week_rank"] == week
+            ]
+
+
+            if week_data.empty:
+
+                row[column_name] = None
+
+                continue
+
+
+            week_nav = float(
+                week_data[
+                    "avg_nav"
+                ].iloc[0]
+            )
+
+
+            if my_avg == 0:
+
+                row[column_name] = None
+
+            else:
+
+                # --------------------------------------------
+                # IMPORTANT:
+                #
+                # Positive:
+                # Week NAV > My Avg
+                #
+                # Negative:
+                # Week NAV < My Avg
+                # --------------------------------------------
+
+                row[column_name] = (
+                    (
+                        week_nav
+                        - my_avg
+                    )
+                    / my_avg
+                    * 100
+                )
+
+
+        my_avg_rows.append(
+            row
+        )
+
+
+    # ========================================================
+    # CREATE DATAFRAME
+    # ========================================================
+
+    my_avg_df = pd.DataFrame(
+        my_avg_rows
+    )
+
+
+    # ========================================================
+    # COLUMN ORDER
+    # ========================================================
+
+    my_avg_columns = [
+        "Fund Name"
+    ] + [
+        f"My Avg vs W{week}"
+        for week in range(
+            1,
+            max_comparison_week + 1
+        )
+    ]
+
+
+    my_avg_df = my_avg_df[
+        my_avg_columns
+    ]
+
+
+    # ========================================================
+    # ROUND VALUES
+    # ========================================================
+
+    my_avg_percentage_columns = (
+        my_avg_columns[1:]
+    )
+
+
+    for column in my_avg_percentage_columns:
+
+        my_avg_df[column] = (
+            my_avg_df[column]
+            .round(2)
+        )
+
+
+    # ========================================================
+    # STYLE FUNCTION
+    # ========================================================
+
+    def my_avg_color(value):
 
         if pd.isna(value):
 
@@ -1704,27 +1751,23 @@ with tab_weekly:
                 "font-weight: bold;"
             )
 
-        else:
-
-            return (
-                "font-weight: bold;"
-            )
+        return "font-weight: bold;"
 
 
     # ========================================================
-    # STYLE COMPARISON TABLE
+    # STYLE TABLE
     # ========================================================
 
-    styled_comparison = (
-        comparison_df.style
+    styled_my_avg = (
+        my_avg_df.style
         .map(
-            comparison_color,
-            subset=percentage_columns
+            my_avg_color,
+            subset=my_avg_percentage_columns
         )
         .format(
             {
                 column: "{:+.2f}%"
-                for column in percentage_columns
+                for column in my_avg_percentage_columns
             }
         )
     )
@@ -1735,8 +1778,8 @@ with tab_weekly:
     # ========================================================
 
     st.dataframe(
-        styled_comparison,
+        styled_my_avg,
         use_container_width=True,
         hide_index=True,
-        height=500
+        height=650
     )
