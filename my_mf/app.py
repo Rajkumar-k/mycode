@@ -23,7 +23,8 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Main India / Global tab container */
+
+    /* Main India / Global / Flexi tab container */
     div[data-baseweb="tab-list"] {
         gap: 8px;
         background: #0F172A;
@@ -68,6 +69,7 @@ st.markdown(
     div[data-baseweb="tab-panel"] {
         padding-top: 4px;
     }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -114,9 +116,14 @@ mf = Mftool()
 #
 # code = Scheme Code
 # type = Fund Category
+# fund_type = Dashboard Tab
 # ==================================================
 
 scheme_codes = {
+
+    # --------------------------------------------------
+    # INDIA
+    # --------------------------------------------------
 
     "Motilal Oswal Midcap Fund Direct Growth": {
         "fund_type": "India",
@@ -148,26 +155,36 @@ scheme_codes = {
         "type": "Sectorial"
     },
 
+    # --------------------------------------------------
+    # GLOBAL
+    # --------------------------------------------------
+
     "ICICI Prudential NASDAQ 100 Index Fund": {
         "fund_type": "Global",
         "code": "149219",
         "type": "Equity"
     },
 
+    # --------------------------------------------------
+    # FLEXI ANALYSIS
+    # --------------------------------------------------
+
     "HDFC Flexi Cap Fund": {
         "fund_type": "Flexi Analysis",
         "code": "118955",
-        "type": "Equity"
+        "type": "Flexi Cap"
     },
 
     "Bank of India Flexi Cap": {
         "fund_type": "Flexi Analysis",
         "code": "148404",
-        "type": "Equity"
+        "type": "Flexi Cap"
     }
 }
+
+
 # ==================================================
-# INDIA / GLOBAL TAB MAPPING
+# INDIA / GLOBAL / FLEXI TAB MAPPING
 # ==================================================
 
 india_funds = [
@@ -187,6 +204,8 @@ flexi_funds = [
     for fund_name, fund_info in scheme_codes.items()
     if fund_info["fund_type"] == "Flexi Analysis"
 ]
+
+
 # ==================================================
 # DEFAULT MY AVG VALUES
 #
@@ -206,7 +225,11 @@ default_my_avg = {
 
     "Nippon India ELSS Cap Fund": 138,
 
-    "ICICI Prudential NASDAQ 100 Index Fund": 21.5
+    "ICICI Prudential NASDAQ 100 Index Fund": 21.5,
+
+    "HDFC Flexi Cap Fund": 100,
+
+    "Bank of India Flexi Cap": 100
 }
 
 
@@ -627,27 +650,56 @@ latest_nav_df = (
 
 
 # ==================================================
-# INDIA / GLOBAL TABS
+# INDIA / GLOBAL / FLEXI ANALYSIS TABS
 # ==================================================
 
-tab_india, tab_global = st.tabs(["🇮🇳 India", "🌎 Global"])
+tab_india, tab_global, tab_flexi = st.tabs(
+    [
+        "🇮🇳 India",
+        "🌎 Global",
+        "📊 Flexi Analysis"
+    ]
+)
+
+
+# ==================================================
+# PROCESS EACH TAB
+# ==================================================
 
 for tab, fund_list in zip(
-    (tab_india, tab_global),
-    (india_funds, global_funds)
+    (
+        tab_india,
+        tab_global,
+        tab_flexi
+    ),
+    (
+        india_funds,
+        global_funds,
+        flexi_funds
+    )
 ):
 
     with tab:
 
-        # Filter by fund name only.
-        # No Region column is added to the dataframes.
+        # ==================================================
+        # FILTER BY FUND NAME
+        # ==================================================
+
         tab_nav = weekly_nav[
-            weekly_nav["Fund Name"].isin(fund_list)
+            weekly_nav["Fund Name"].isin(
+                fund_list
+            )
         ].copy()
 
+
         if tab_nav.empty:
-            st.info("No mutual fund data available for this tab.")
+
+            st.info(
+                "No mutual fund data available for this tab."
+            )
+
             continue
+
 
         # ==================================================
         # WEEK FILTER HEADER
@@ -687,6 +739,23 @@ for tab, fund_list in zip(
         ]
 
 
+        # --------------------------------------------------
+        # UNIQUE KEY FOR EACH TAB
+        # --------------------------------------------------
+
+        if fund_list == india_funds:
+
+            tab_key = "india"
+
+        elif fund_list == global_funds:
+
+            tab_key = "global"
+
+        else:
+
+            tab_key = "flexi"
+
+
         selected_weeks = st.selectbox(
             "Show weeks",
             options=filter_options,
@@ -696,7 +765,7 @@ for tab, fund_list in zip(
                 if x == "ALL"
                 else f"Last {x} Weeks"
             ),
-            key=f"show_weeks_{'india' if fund_list == india_funds else 'global'}"
+            key=f"show_weeks_{tab_key}"
         )
 
 
@@ -706,15 +775,16 @@ for tab, fund_list in zip(
 
         if selected_weeks == "ALL":
 
-                filtered_nav = tab_nav.copy()
+            filtered_nav = tab_nav.copy()
 
         else:
 
-                filtered_nav = (
-                    tab_nav[
-                        tab_nav["week_rank"] <= selected_weeks
-                    ].copy()
-                )
+            filtered_nav = (
+                tab_nav[
+                    tab_nav["week_rank"]
+                    <= selected_weeks
+                ].copy()
+            )
 
 
         # ==================================================
@@ -741,10 +811,10 @@ for tab, fund_list in zip(
         # ==================================================
 
         fund_types = (
-                tab_nav["Fund Type"]
-                .drop_duplicates()
-                .tolist()
-            )
+            tab_nav["Fund Type"]
+            .drop_duplicates()
+            .tolist()
+        )
 
 
         # ==================================================
@@ -875,8 +945,7 @@ for tab, fund_list in zip(
                         tab_nav[
                             tab_nav["Fund Name"]
                             == fund_name
-                        ]
-                        .copy()
+                        ].copy()
                     )
 
 
@@ -1198,11 +1267,13 @@ for tab, fund_list in zip(
                 # GET MY AVG
                 # ==================================================
 
-                my_avg = st.session_state.my_avg_values.get(
-                    fund_name,
-                    default_my_avg.get(
+                my_avg = (
+                    st.session_state.my_avg_values.get(
                         fund_name,
-                        0.0
+                        default_my_avg.get(
+                            fund_name,
+                            0.0
+                        )
                     )
                 )
 
@@ -1307,7 +1378,8 @@ for tab, fund_list in zip(
 
                 st.plotly_chart(
                     fig,
-                    use_container_width=True
+                    use_container_width=True,
+                    key=f"chart_{tab_key}_{fund_name}"
                 )
 
 
