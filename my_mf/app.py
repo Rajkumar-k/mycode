@@ -168,6 +168,12 @@ scheme_codes = {
         "type": "Equity"
     },
 
+    "HSBC Asia Pacific (Ex Japan) Dividend Yield Fund Direct Growth": {
+        "fund_type": "Global",
+        "code": "127071",
+        "type": "Equity"
+    },
+
     # --------------------------------------------------------
     # FLEXI ANALYSIS
     # --------------------------------------------------------
