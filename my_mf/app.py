@@ -174,6 +174,12 @@ scheme_codes = {
         "type": "Equity"
     },
 
+
+    "HSBC Brazil Fund - Direct Plan - Growth": {
+        "fund_type": "Global",
+        "code": "120035",
+        "type": "Equity"
+    },
     # --------------------------------------------------------
     # FLEXI ANALYSIS
     # --------------------------------------------------------
