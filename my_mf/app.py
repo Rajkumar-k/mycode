@@ -162,6 +162,12 @@ scheme_codes = {
         "type": "Equity"
     },
 
+     "HSBC Global Emerging Markets Fund - Direct Plan - Growth": {
+        "fund_type": "Global",
+        "code": "120043",
+        "type": "Equity"
+    },
+
     # --------------------------------------------------------
     # FLEXI ANALYSIS
     # --------------------------------------------------------
