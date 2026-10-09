@@ -16,6 +16,20 @@ scheme_codes = {
         "type": "Mid Cap"
     },
 
+     "ICICI Prudential Flexi Cap Fund Direct-Growth": {
+        "frequency": "Monthly",
+        "fund_type": "India",
+        "code": "148990",
+        "type": "Flexi Cap"
+    },
+
+     "Edelweiss Mid Cap Fund - Direct Plan - Growth": {
+        "frequency": "Monthly",
+        "fund_type": "India",
+        "code": "140228",
+        "type": "Mid Cap"
+    },
+
     "Canara Robeco Small Cap Fund Direct": {
         "frequency": "Monthly",
         "fund_type": "India",
